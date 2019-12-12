@@ -1,1 +1,207 @@
-Übung "Pet Obedience School" aka DogSchool (Hundeschule)
+= Übung "Pet Obedience School" aka DogSchool (Hundeschule)
+// Metadata
+:author: Thomas W. Stütz
+:email:  t.stuetz@htl-leonding.ac.at
+:date: 2019-12-11
+:revision:  1.0
+// Settings
+:source-highlighter: coderay
+:icons: font
+//:sectnums:    // Nummerierung der Überschriften / section numbering
+// Refs:
+:imagesdir: assets
+:sourcedir-code: src/main/java/at/htl/dogschool
+:sourcedir-test: src/test/java/at/htl/dogschool
+:toc:
+
+Version: {revision}
+
+++++
+<link rel="stylesheet"  href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+++++
+
+== Ausgangssituation
+
+Ein Besitzer einer Hundeschule tritt an sie als Softwareentwickler heran,
+und bittet Sie eine Anwendung in Jakarta EE für folgende Situation zu erstellen:
+
+* Die Hundeschule bietet grundsätzlich Kurse für Hunde an
+* Es gibt verschiedene Kurstypen (zB Welpenkurs und Begleithunde1)
+* Hunde gehören zu Personen
+* Bei den Kursbuchungen werden zwar die Hunde eingtragen, über diese sind jedoch die Eigentümer (owner) zu eruieren.
+
+== Aufgabe 1: Initialisieren der Datenbank
+
+. Ergänzen Sie die Entitäten so, dass eine Persisitierung in der Datenbank erfolgt.
+. Ergänzen Sie ebenfalls die InitBean so, dass beim Start des Systems eine Initialisierung der Datenbank erfolgt
+. Beachten Sie beim Einlesen der Kurs-csv-Datei, dass keine doppelten Kurse eingelesen werden (siehe Kommentar bei
+Methode InitBean.readCsv(...))
+
+.Class Diagram
+image::CLD.png["Class Diagram]
+
+.Entity Relationship Diagram
+image::ERD.png[Entity Relationship diagram]
+
+WARNING: Beachten sie die Kommentare im source-code. Dort finden Sie weitere Anweisungen und Hilfestellungen
+
+.Table S_PERSON
+image::S_PERSON.png[]
+
+.Table S_DOG
+image::S_DOG.png[]
+
+.Table S_COURSE_TYPE
+image::S_COURSE_TYPE.png[]
+
+.Table S_COURSE
+image::S_COURSE.png[]
+
+== Aufgabe 2: Erstellen der Repositories
+
+Sämtliche Zugriffe auf die Datenbank (mit Ausnahme der InitBean)
+sind über die Repositories zu erfolgen.
+
+Sie müssen *nicht* alle Methoden in den Repositories implementieren - nur jene, die sie zur Versorgung
+zB der Endpoints mit Daten benötigen.
+
+== Aufgabe 3: RESTful Endpoint für CourseType
+
+Erstellen Sie einen Endpoint `CoursetypeEndpoint` für die Entität `CourseType` und
+implementieren Sie dort eine CRUD-Funktionalität. Das Datenformat ist sowohl bei den
+Requests als auch bei den Responses jeweils JSON.
+
+TIP: In der Datei `/rest-requests/requests.http` sind schon einige Requests vorbereitet
+
+=== Liste aller Kurstypen
+----
+GET http://localhost:8080/school/api/course_type
+----
+
+=== Erstellen eines neuen Kurstypen zB Schutzhunde-Ausbildung (mit Abkürzung "schutz")
+----
+POST http://localhost:8080/school/api/course_type
+----
+
+Wenn sie den vorbereiteten Request im File `/rest-requests/requests.http` verwenden,
+sollten Sie folgenden Response erhalten:
+
+----
+POST http://localhost:8080/school/api/course_type
+
+HTTP/1.1 201 Created
+Connection: keep-alive
+Location: http://localhost:8080/school/api/course_type/4
+Content-Length: 0
+Date: Wed, 11 Dec 2019 23:59:32 GMT
+
+<Response body is empty>
+
+Response code: 201 (Created); Time: 7780ms; Content length: 0 bytes
+----
+
+Wichtig ist dabei der Header "Location" mit der id des erstellten Datensatzes
+
+=== Ändern eines Kurstypen
+
+==== Korrekte Anfrage
+
+----
+PUT http://localhost:8080/school/api/course_type/4
+Content-Type: application/json
+
+{
+  "abbr": "such",
+  "name": "Suchhunde-Ausbildung"
+}
+----
+ev. auch PATCH +
+vgl. hierzu https://medium.com/backticks-tildes/restful-api-design-put-vs-patch-4a061aa3ed0b +
+
+.Response bei korrekter Anfrage
+----
+PUT http://localhost:8080/school/api/course_type/4
+
+HTTP/1.1 200 OK
+Connection: keep-alive
+Content-Type: application/json
+Content-Length: 52
+Date: Thu, 12 Dec 2019 00:42:47 GMT
+
+{
+  "abbr": "such",
+  "id": 4,
+  "name": "Suchhunde-Ausbildung"
+}
+
+Response code: 200 (OK); Time: 5396ms; Content length: 52 bytes
+----
+
+==== Fehlerhafte Anfrage
+
+----
+PUT http://localhost:8080/school/api/course_type/10
+Content-Type: application/json
+
+{
+  "abbr": "such",
+  "name": "Suchhunde-Ausbildung"
+}
+----
+
+.Response bei fehlerhafter Anfrage
+----
+PUT http://localhost:8080/school/api/course_type/10
+
+HTTP/1.1 400 Bad Request
+Connection: keep-alive
+Reason: courseType with id 10 does not exist
+Content-Length: 0
+Date: Thu, 12 Dec 2019 00:30:25 GMT
+
+<Response body is empty>
+
+Response code: 400 (Bad Request); Time: 29ms; Content length: 0 bytes
+----
+
+Beachten Sie, den Header *Reason*. Implementieren sie diesen genauso
+
+=== Löschen eines Kurstypen
+
+==== Korrekte Anfrage
+----
+DELETE http://localhost:8080/school/api/course_type/4
+
+HTTP/1.1 204 No Content
+Date: Thu, 12 Dec 2019 00:39:27 GMT
+
+<Response body is empty>
+
+Response code: 204 (No Content); Time: 3724ms; Content length: 0 bytes
+----
+
+==== Fehlerhafte Anfrage
+
+----
+DELETE http://localhost:8080/school/api/course_type/10
+
+HTTP/1.1 400 Bad Request
+Connection: keep-alive
+Reason: courseType with id 10 does not exist
+Content-Length: 0
+Date: Thu, 12 Dec 2019 00:37:19 GMT
+
+<Response body is empty>
+
+Response code: 400 (Bad Request); Time: 24808ms; Content length: 0 bytes
+----
+
+TIP: Falls Sie Informationen über JPA-Queries brauchen, können Sie folgende Quelle verwenden
+https://www.objectdb.com/java/jpa/query/jpql/expression
+
+
+== Aufgabe 4: Erstellen von drei Buchungen
+
+Hier können Sie die Methodennamen der Endpoints frei wählen
+
+*Viel Erfolg!*
