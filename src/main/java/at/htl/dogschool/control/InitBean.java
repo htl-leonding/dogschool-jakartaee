@@ -85,8 +85,13 @@ public class InitBean {
 
     /**
      * parse one line of the csv-file and create a course-object
+     *
+     * we are using ISO-8601 for the datetime-field
+     *
+     * Use for getteing the coursetype a named-jpa-query
+     *
      * @param elems
-     * @return
+     * @return the new Course-object
      */
     private Course parseCourse(String[] elems) {
         LocalDateTime start = LocalDateTime.parse(elems[1]);

@@ -15,6 +15,10 @@ import javax.persistence.*;
         @NamedQuery(
                 name = "CourseType.findByAbbr",
                 query = "select ct from CourseType ct where ct.abbr LIKE :ABBR"
+        ),
+        @NamedQuery(
+                name = "CourseType.findAll",
+                query = "select ct from CourseType ct"
         )
 })
 public class CourseType {

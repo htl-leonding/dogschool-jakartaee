@@ -1,0 +1,41 @@
+GET http://localhost:8080/school/api/course_type
+
+### korrekte Anfrage
+
+POST http://localhost:8080/school/api/course_type
+Content-Type: application/json
+
+{
+  "abbr": "schutz",
+  "name": "Schutzhunde-Ausbildung"
+}
+
+### korrekte Anfrage
+
+PUT http://localhost:8080/school/api/course_type/4
+Content-Type: application/json
+
+{
+  "abbr": "such",
+  "name": "Suchhunde-Ausbildung"
+}
+
+### korrekte Anfrage
+
+DELETE http://localhost:8080/school/api/course_type/4
+
+### fehlerhafte Anfrage
+
+PUT http://localhost:8080/school/api/course_type/10
+Content-Type: application/json
+
+{
+  "abbr": "such",
+  "namex": "Suchhunde-Ausbildung"
+}
+
+### fehlerhafte Anfrage
+
+DELETE http://localhost:8080/school/api/course_type/10
+
+###
