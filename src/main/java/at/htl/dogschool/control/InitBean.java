@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 @ApplicationScoped
@@ -76,12 +77,28 @@ public class InitBean {
             stream.skip(1)
                     .map(s -> s.split(";"))
                     .map(a -> parseCourse(a))
+                    //.map(parseCourse)
                     .distinct()
                     .forEach(em::merge);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+// Lösung Sengsbratl (Typkonvertierung unsauber))
+//            stream.skip(1)
+//                  .distinct()
+//                  .map(elem -> elem.split(";"))
+//                  .map(item -> new Course(
+//                       item[4],
+//                       Double.valueOf(item[2]),
+//                       LocalDateTime.parse(item[1]),
+//                       Integer.valueOf(item[3]),
+//                       courseTypeRepository.findByAbbr(item[0]))
+//                       )
+//                  .forEach(em::merge);
+
+
 
     /**
      * parse one line of the csv-file and create a course-object
@@ -93,8 +110,9 @@ public class InitBean {
      * @param elems
      * @return the new Course-object
      */
+    // tag::mymeth[]
     private Course parseCourse(String[] elems) {
-        LocalDateTime start = LocalDateTime.parse(elems[1]);
+        LocalDateTime start = LocalDateTime.parse(elems[1]); // <1>
         double price = Double.parseDouble(elems[2]);
         int noOfMeetings = Integer.parseInt(elems[3]);
         CourseType courseType = courseTypeRepository.findByAbbr(elems[0]);
@@ -102,5 +120,17 @@ public class InitBean {
 
         return new Course(name, price, start, noOfMeetings, courseType);
     }
+    // end::mymeth[]
+
+//    private Function<String[], Course> parseCourse = d -> new Course(
+//            d[0],
+//            Double.parseDouble(d[2]),
+//            LocalDateTime.parse(d[1]),
+//            Integer.parseInt(d[3]),
+//            new CourseType(d[4])
+//    );
+
+
+
 
 }
