@@ -36,6 +36,14 @@ Content-Type: application/json
 
 ### fehlerhafte Anfrage
 
-DELETE http://localhost:8080/school/api/course_type/10
+DELETE http://localhost:8080/school/api/course_type/15
+
+###
+
+
+POST http://localhost:8080/school/api/booking
+Content-Type: application/json
+
+{"bookingdate":"2020-03-07T10:00","price":45.0,"course":{"id": 1},"dog":{"id": 2}}
 
 ###
